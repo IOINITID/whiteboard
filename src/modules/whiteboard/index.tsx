@@ -3,7 +3,7 @@ import { Rectangle } from "../rectangle";
 
 export class Whiteboard extends Layer {
   public context: CanvasRenderingContext2D | null;
-  public layers: Layer[];
+  public layers: Rectangle[];
 
   constructor() {
     super();
@@ -12,7 +12,7 @@ export class Whiteboard extends Layer {
     this.layers = [];
   }
 
-  public clear() {
+  private clear() {
     if (this.context) {
       this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
     }
@@ -21,40 +21,34 @@ export class Whiteboard extends Layer {
   public add(layer: Rectangle) {
     this.layers.push(layer);
 
-    this.reDraw();
+    this.update();
   }
 
-  public draw(layer: Rectangle) {
-    this.reDraw();
+  public draw(layer: Rectangle, isRedraw: boolean = true) {
+    if (isRedraw) {
+      this.update();
+    }
 
-    if (this.context) {
-      layer.create(
-        this.context,
-        layer.position.x,
-        layer.position.y,
-        layer.size.width,
-        layer.size.height
-      );
+    if (layer.type === "rectangle") {
+      if (layer instanceof Rectangle) {
+        if (this.context) {
+          layer.create(
+            this.context,
+            layer.position.x,
+            layer.position.y,
+            layer.size.width,
+            layer.size.height
+          );
+        }
+      }
     }
   }
 
-  private reDraw() {
+  private update() {
     this.clear();
 
     this.layers.forEach((layer) => {
-      if (layer.type === "rectangle") {
-        if (layer instanceof Rectangle) {
-          if (this.context) {
-            layer.create(
-              this.context,
-              layer.position.x,
-              layer.position.y,
-              layer.size.width,
-              layer.size.height
-            );
-          }
-        }
-      }
+      this.draw(layer, false);
     });
   }
 }

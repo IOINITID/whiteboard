@@ -20,6 +20,9 @@ export class Rectangle extends Layer {
     this.size = { width, height };
 
     if (context) {
+      context.strokeStyle = "#000000";
+      context.lineWidth = 1;
+
       context.beginPath();
 
       context.moveTo(x, y);
