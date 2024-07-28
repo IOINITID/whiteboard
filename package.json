@@ -12,6 +12,8 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@emotion/css": "^11.13.0",
+    "@emotion/styled": "^11.13.0",
     "@rsbuild/core": "^0.4.7",
     "@rsbuild/plugin-react": "^0.4.7",
     "@types/react": "^18.3.3",
