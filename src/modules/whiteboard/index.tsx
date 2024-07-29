@@ -1,14 +1,13 @@
 import { Circle } from "../circle";
-import { Layer } from "../layer";
 import { Rectangle } from "../rectangle";
 
-export class Whiteboard extends Layer {
+export type Layers = Rectangle[] & Circle[];
+
+export class Whiteboard {
   public context: CanvasRenderingContext2D | null;
-  private layers: Rectangle[] | Circle[];
+  private layers: Layers;
 
   constructor() {
-    super();
-
     this.context = null;
     this.layers = [];
   }
@@ -30,31 +29,13 @@ export class Whiteboard extends Layer {
       this.update();
     }
 
-    if (layer.type === "rectangle") {
-      if (layer instanceof Rectangle) {
-        if (this.context) {
-          layer.create(
-            this.context,
-            layer.position.x,
-            layer.position.y,
-            layer.size.width,
-            layer.size.height
-          );
-        }
+    if (this.context) {
+      if (layer.type === "rectangle") {
+        layer.create(this.context);
       }
-    }
 
-    if (layer.type === "circle") {
-      if (layer instanceof Circle) {
-        if (this.context) {
-          layer.create(
-            this.context,
-            layer.position.x,
-            layer.position.y,
-            layer.size.width,
-            layer.size.height
-          );
-        }
+      if (layer.type === "circle") {
+        layer.create(this.context);
       }
     }
   }
