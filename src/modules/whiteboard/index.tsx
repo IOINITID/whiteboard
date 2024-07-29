@@ -1,9 +1,10 @@
+import { Circle } from "../circle";
 import { Layer } from "../layer";
 import { Rectangle } from "../rectangle";
 
 export class Whiteboard extends Layer {
   public context: CanvasRenderingContext2D | null;
-  public layers: Rectangle[];
+  private layers: Rectangle[] | Circle[];
 
   constructor() {
     super();
@@ -18,19 +19,33 @@ export class Whiteboard extends Layer {
     }
   }
 
-  public add(layer: Rectangle) {
+  public add(layer: Rectangle | Circle) {
     this.layers.push(layer);
 
     this.update();
   }
 
-  public draw(layer: Rectangle, isRedraw: boolean = true) {
+  public draw(layer: Rectangle | Circle, isRedraw: boolean = true) {
     if (isRedraw) {
       this.update();
     }
 
     if (layer.type === "rectangle") {
       if (layer instanceof Rectangle) {
+        if (this.context) {
+          layer.create(
+            this.context,
+            layer.position.x,
+            layer.position.y,
+            layer.size.width,
+            layer.size.height
+          );
+        }
+      }
+    }
+
+    if (layer.type === "circle") {
+      if (layer instanceof Circle) {
         if (this.context) {
           layer.create(
             this.context,

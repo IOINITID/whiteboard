@@ -1,5 +1,5 @@
 export class Layer {
-  public type: "main" | "rectangle";
+  public type: "main" | "rectangle" | "circle";
   public position: { x: number; y: number };
   public size: { width: number; height: number };
 
