@@ -2,11 +2,13 @@ import { useCallback, useEffect, useState } from "react";
 import { whiteboard } from "../../modules/whiteboard";
 import { Rectangle } from "../../modules/rectangle";
 import { Circle } from "../../modules/circle";
+import { LayerType } from "../../modules/layer";
+import { Line } from "../../modules/line";
 
 export const Canvas = () => {
   const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
   const [isMouseDown, setisMouseDown] = useState(false);
-  const [tool, setTool] = useState<"rectangle" | "circle">("rectangle");
+  const [tool, setTool] = useState<LayerType>("rectangle");
   const [x, setX] = useState(0);
   const [y, setY] = useState(0);
   const [width, setWidth] = useState(0);
@@ -29,6 +31,10 @@ export const Canvas = () => {
 
       if (tool === "circle") {
         whiteboard.draw(new Circle(x, y, width, height));
+      }
+
+      if (tool === "line") {
+        whiteboard.draw(new Line(x, y, width, height));
       }
     }
   }, [x, y, width, height, isMouseDown, tool]);
@@ -69,6 +75,17 @@ export const Canvas = () => {
         >
           Circle
         </div>
+        <div
+          style={{
+            background: tool === "line" ? "lavender" : "none",
+            padding: "16px",
+          }}
+          onClick={() => {
+            setTool("line");
+          }}
+        >
+          Line
+        </div>
       </div>
       <canvas
         style={{ cursor: isMouseDown ? "crosshair" : "default" }}
@@ -92,6 +109,10 @@ export const Canvas = () => {
 
           if (tool === "circle") {
             whiteboard.add(new Circle(x, y, width, height));
+          }
+
+          if (tool === "line") {
+            whiteboard.add(new Line(x, y, width, height));
           }
 
           setisMouseDown(false);

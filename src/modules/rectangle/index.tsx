@@ -28,7 +28,7 @@ export class Rectangle extends Layer implements ILayer {
 
       context.beginPath();
 
-      context.moveTo(this.position.x + this.radius, this.position.y);
+      // context.moveTo(this.position.x + this.radius, this.position.y);
 
       // context.lineTo(x + width - this.radius, y);
       // context.quadraticCurveTo(x + width, y, x + width, y + this.radius);

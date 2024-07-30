@@ -21,26 +21,20 @@ export class Whiteboard {
   public add(layer: Rectangle | Circle) {
     this.layers.push(layer);
 
-    this.update();
+    this.redraw();
   }
 
   public draw(layer: Rectangle | Circle, isRedraw: boolean = true) {
     if (isRedraw) {
-      this.update();
+      this.redraw();
     }
 
     if (this.context) {
-      if (layer.type === "rectangle") {
-        layer.create(this.context);
-      }
-
-      if (layer.type === "circle") {
-        layer.create(this.context);
-      }
+      layer.create(this.context);
     }
   }
 
-  private update() {
+  private redraw() {
     this.clear();
 
     this.layers.forEach((layer) => {
