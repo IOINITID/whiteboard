@@ -1,7 +1,8 @@
 import { Circle } from "../circle";
+import { Line } from "../line";
 import { Rectangle } from "../rectangle";
 
-export type Layers = Rectangle[] & Circle[];
+export type Layers = Rectangle[] & Circle[] & Line[];
 
 export class Whiteboard {
   public context: CanvasRenderingContext2D | null;
@@ -18,13 +19,13 @@ export class Whiteboard {
     }
   }
 
-  public add(layer: Rectangle | Circle) {
+  public add(layer: Rectangle | Circle | Line) {
     this.layers.push(layer);
 
     this.redraw();
   }
 
-  public draw(layer: Rectangle | Circle, isRedraw: boolean = true) {
+  public draw(layer: Rectangle | Circle | Line, isRedraw: boolean = true) {
     if (isRedraw) {
       this.redraw();
     }
