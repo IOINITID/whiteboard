@@ -1,12 +1,19 @@
 export type LayerType = "main" | "rectangle" | "circle" | "line";
-export type LayerPosition = { x: number; y: number };
-export type LayerSize = { width: number; height: number };
+export type LayerPosition = {
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+};
 
 export interface ILayer {
+  id: string;
   type: LayerType;
   position: LayerPosition;
-  size: LayerSize;
+  state: "default" | "active";
   create: (context: CanvasRenderingContext2D) => void;
+  move: (x: number, y: number) => void;
+  remove: () => void;
 }
 
 export class Layer {}

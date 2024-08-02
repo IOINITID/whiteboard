@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { whiteboard } from "../../modules/whiteboard";
+import { scene } from "../../modules/scene";
 import { Rectangle } from "../../modules/rectangle";
 import { Circle } from "../../modules/circle";
 import { LayerType } from "../../modules/layer";
@@ -7,37 +7,75 @@ import { Line } from "../../modules/line";
 
 export const Canvas = () => {
   const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
-  const [isMouseDown, setisMouseDown] = useState(false);
+  const [isMouseDown, setIsMouseDown] = useState(false);
   const [tool, setTool] = useState<LayerType>("rectangle");
-  const [x, setX] = useState(0);
-  const [y, setY] = useState(0);
-  const [width, setWidth] = useState(0);
-  const [height, setHeight] = useState(0);
+  const [minX, setMinX] = useState(0);
+  const [minY, setMinY] = useState(0);
+  const [maxX, setMaxX] = useState(0);
+  const [maxY, setMaxY] = useState(0);
+  const [cursor, setCursor] = useState("default");
 
   const setCanvasRef = useCallback((canvas: HTMLCanvasElement) => {
     setContext(canvas.getContext("2d"));
 
-    whiteboard.context = canvas.getContext("2d");
+    scene.context = canvas.getContext("2d");
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   }, []);
 
   useEffect(() => {
-    if (isMouseDown) {
+    window.addEventListener("keydown", (event) => {
+      if (event.key.toLowerCase() === "backspace") {
+        const layer = scene.getLayer(minX, minY);
+
+        if (layer) {
+          layer.remove();
+        }
+      }
+    });
+  }, [minX, minY]);
+
+  useEffect(() => {
+    if (isMouseDown && minX && minY && maxX && maxY) {
       if (tool === "rectangle") {
-        whiteboard.draw(new Rectangle(x, y, width, height));
+        scene.draw(new Rectangle(minX, minY, maxX, maxY));
       }
 
       if (tool === "circle") {
-        whiteboard.draw(new Circle(x, y, width, height));
+        scene.draw(new Circle(minX, minY, maxX, maxY));
       }
 
       if (tool === "line") {
-        whiteboard.draw(new Line(x, y, width, height));
+        scene.draw(new Line(minX, minY, maxX, maxY));
       }
     }
-  }, [x, y, width, height, isMouseDown, tool]);
+  }, [minX, minY, maxX, maxY, isMouseDown, tool]);
+
+  useEffect(() => {
+    if (isMouseDown && tool !== "main") {
+      setCursor("crosshair");
+    } else {
+      setCursor("default");
+
+      setMinX(0);
+      setMinY(0);
+      setMaxX(0);
+      setMaxY(0);
+
+      if (tool === "rectangle") {
+        scene.add(new Rectangle(minX, minY, maxX, maxY));
+      }
+
+      if (tool === "circle") {
+        scene.add(new Circle(minX, minY, maxX, maxY));
+      }
+
+      if (tool === "line") {
+        scene.add(new Line(minX, minY, maxX, maxY));
+      }
+    }
+  }, [tool, isMouseDown]);
 
   return (
     <>
@@ -53,6 +91,17 @@ export const Canvas = () => {
           gap: "16px",
         }}
       >
+        <div
+          style={{
+            background: tool === "main" ? "lavender" : "none",
+            padding: "16px",
+          }}
+          onClick={() => {
+            setTool("main");
+          }}
+        >
+          Main
+        </div>
         <div
           style={{
             background: tool === "rectangle" ? "lavender" : "none",
@@ -88,39 +137,41 @@ export const Canvas = () => {
         </div>
       </div>
       <canvas
-        style={{ cursor: isMouseDown ? "crosshair" : "default" }}
+        style={{ cursor }}
         ref={setCanvasRef}
         onMouseMove={(event) => {
           if (isMouseDown) {
-            setWidth(event.clientX - x);
-            setHeight(event.clientY - y);
+            setMaxX(event.clientX);
+            setMaxY(event.clientY);
+          }
+
+          const layer = scene.getLayer(event.clientX, event.clientY);
+
+          if (layer) {
+            setCursor("move");
+          } else {
+            setCursor("default");
+          }
+
+          if (layer && isMouseDown && layer.state === "active") {
+            layer.move(event.movementX, event.movementY);
           }
         }}
         onMouseDown={(event) => {
-          setisMouseDown(true);
+          setIsMouseDown(true);
 
-          setX(event.clientX);
-          setY(event.clientY);
+          setMinX(event.clientX);
+          setMinY(event.clientY);
+
+          const layer = scene.getLayer(event.clientX, event.clientY);
+
+          scene.setState(layer);
         }}
-        onMouseUp={() => {
-          if (tool === "rectangle") {
-            whiteboard.add(new Rectangle(x, y, width, height));
-          }
+        onMouseUp={(event) => {
+          setIsMouseDown(false);
 
-          if (tool === "circle") {
-            whiteboard.add(new Circle(x, y, width, height));
-          }
-
-          if (tool === "line") {
-            whiteboard.add(new Line(x, y, width, height));
-          }
-
-          setisMouseDown(false);
-
-          setX(0);
-          setY(0);
-          setWidth(0);
-          setHeight(0);
+          setMaxX(event.clientX);
+          setMaxY(event.clientY);
         }}
       />
     </>
