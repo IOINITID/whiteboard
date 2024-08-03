@@ -1,4 +1,9 @@
-export type LayerType = "main" | "rectangle" | "circle" | "line";
+import { Circle } from "../circle";
+import { Line } from "../line";
+import { Rectangle } from "../rectangle";
+import { scene } from "../scene";
+
+export type LayerType = "cursor" | "rectangle" | "circle" | "line" | "freedraw";
 export type LayerPosition = {
   minX: number;
   minY: number;
@@ -16,4 +21,18 @@ export interface ILayer {
   remove: () => void;
 }
 
-export class Layer {}
+export class Layer {
+  public move(this: Rectangle | Circle | Line, x: number, y: number) {
+    this.position.minX += x;
+    this.position.minY += y;
+    this.position.maxX += x;
+    this.position.maxY += y;
+
+    scene.redraw();
+  }
+
+  public remove(this: Rectangle | Circle | Line) {
+    scene.layers = scene.layers.filter((layer) => layer.id !== this.id);
+    scene.redraw();
+  }
+}

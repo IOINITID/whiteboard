@@ -1,5 +1,4 @@
 import { ILayer, Layer, LayerPosition, LayerType } from "../layer";
-import { scene } from "../scene";
 
 export class Rectangle extends Layer implements ILayer {
   public type: LayerType;
@@ -48,19 +47,5 @@ export class Rectangle extends Layer implements ILayer {
 
       context.stroke();
     }
-  }
-
-  public move(x: number, y: number) {
-    this.position.minX += x;
-    this.position.minY += y;
-    this.position.maxX += x;
-    this.position.maxY += y;
-
-    scene.redraw();
-  }
-
-  public remove() {
-    scene.layers = scene.layers.filter((layer) => layer.id !== this.id);
-    scene.redraw();
   }
 }

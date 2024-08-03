@@ -1,12 +1,13 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { scene } from "../../modules/scene";
 import { Rectangle } from "../../modules/rectangle";
 import { Circle } from "../../modules/circle";
 import { LayerType } from "../../modules/layer";
 import { Line } from "../../modules/line";
+import { Freedraw } from "../../modules/freedraw";
+import { Tools } from "../tools";
 
 export const Canvas = () => {
-  const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [tool, setTool] = useState<LayerType>("rectangle");
   const [minX, setMinX] = useState(0);
@@ -15,26 +16,9 @@ export const Canvas = () => {
   const [maxY, setMaxY] = useState(0);
   const [cursor, setCursor] = useState("default");
 
-  const setCanvasRef = useCallback((canvas: HTMLCanvasElement) => {
-    setContext(canvas.getContext("2d"));
-
-    scene.context = canvas.getContext("2d");
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }, []);
-
   useEffect(() => {
-    window.addEventListener("keydown", (event) => {
-      if (event.key.toLowerCase() === "backspace") {
-        const layer = scene.getLayer(minX, minY);
-
-        if (layer) {
-          layer.remove();
-        }
-      }
-    });
-  }, [minX, minY]);
+    scene.create();
+  }, []);
 
   useEffect(() => {
     if (isMouseDown && minX && minY && maxX && maxY) {
@@ -49,11 +33,15 @@ export const Canvas = () => {
       if (tool === "line") {
         scene.draw(new Line(minX, minY, maxX, maxY));
       }
+
+      if (tool === "freedraw") {
+        scene.draw(new Freedraw(minX, minY));
+      }
     }
   }, [minX, minY, maxX, maxY, isMouseDown, tool]);
 
   useEffect(() => {
-    if (isMouseDown && tool !== "main") {
+    if (isMouseDown && tool !== "cursor") {
       setCursor("crosshair");
     } else {
       setCursor("default");
@@ -74,71 +62,18 @@ export const Canvas = () => {
       if (tool === "line") {
         scene.add(new Line(minX, minY, maxX, maxY));
       }
+
+      if (tool === "freedraw") {
+        scene.add(new Freedraw(minX, minY));
+      }
     }
   }, [tool, isMouseDown]);
 
   return (
     <>
-      <div
-        style={{
-          position: "fixed",
-          top: "32px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: "16px",
-        }}
-      >
-        <div
-          style={{
-            background: tool === "main" ? "lavender" : "none",
-            padding: "16px",
-          }}
-          onClick={() => {
-            setTool("main");
-          }}
-        >
-          Main
-        </div>
-        <div
-          style={{
-            background: tool === "rectangle" ? "lavender" : "none",
-            padding: "16px",
-          }}
-          onClick={() => {
-            setTool("rectangle");
-          }}
-        >
-          Rectangle
-        </div>
-        <div
-          style={{
-            background: tool === "circle" ? "lavender" : "none",
-            padding: "16px",
-          }}
-          onClick={() => {
-            setTool("circle");
-          }}
-        >
-          Circle
-        </div>
-        <div
-          style={{
-            background: tool === "line" ? "lavender" : "none",
-            padding: "16px",
-          }}
-          onClick={() => {
-            setTool("line");
-          }}
-        >
-          Line
-        </div>
-      </div>
+      <Tools tool={tool} setTool={setTool} />
       <canvas
         style={{ cursor }}
-        ref={setCanvasRef}
         onMouseMove={(event) => {
           if (isMouseDown) {
             setMaxX(event.clientX);
@@ -156,6 +91,18 @@ export const Canvas = () => {
           if (layer && isMouseDown && layer.state === "active") {
             layer.move(event.movementX, event.movementY);
           }
+
+          if (isMouseDown) {
+            console.log(
+              event.clientX + event.movementX,
+              event.clientY + event.movementY
+            );
+
+            new Freedraw(
+              event.clientX + event.movementX,
+              event.clientY + event.movementY
+            );
+          }
         }}
         onMouseDown={(event) => {
           setIsMouseDown(true);
@@ -163,9 +110,9 @@ export const Canvas = () => {
           setMinX(event.clientX);
           setMinY(event.clientY);
 
-          const layer = scene.getLayer(event.clientX, event.clientY);
+          // const layer = scene.getLayer(event.clientX, event.clientY);
 
-          scene.setState(layer);
+          // scene.setState(layer);
         }}
         onMouseUp={(event) => {
           setIsMouseDown(false);

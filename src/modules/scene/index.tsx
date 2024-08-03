@@ -13,6 +13,48 @@ export class Scene {
     this.layers = [];
   }
 
+  public create() {
+    const canvas = document.querySelector("canvas");
+
+    if (canvas) {
+      this.context = canvas.getContext("2d");
+
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener("mousedown", (event) => {
+      const { clientX, clientY } = event;
+
+      const layer = this.getLayer(clientX, clientY);
+
+      if (layer) {
+        this.layers.forEach((layer) => {
+          layer.state = "default";
+        });
+        layer.state = "active";
+      } else {
+        this.layers.forEach((layer) => {
+          layer.state = "default";
+        });
+      }
+
+      this.redraw();
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key.toLowerCase() === "backspace") {
+        const layer = this.layers.findIndex(
+          (layer) => layer.state === "active"
+        );
+
+        if (layer !== -1) {
+          this.layers[layer].remove();
+        }
+      }
+    });
+  }
+
   private clear() {
     if (this.context) {
       this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
