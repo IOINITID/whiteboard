@@ -78,6 +78,8 @@ export class Scene {
   }
 
   public redraw() {
+    console.log({ layers: this.layers });
+
     this.clear();
 
     this.layers.forEach((layer) => {

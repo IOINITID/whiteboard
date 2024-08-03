@@ -5,15 +5,15 @@ import { Circle } from "../../modules/circle";
 import { LayerType } from "../../modules/layer";
 import { Line } from "../../modules/line";
 import { Freedraw } from "../../modules/freedraw";
-import { Tools } from "../tools";
 
-export const Canvas = () => {
+export const Canvas = ({ tool }: { tool: LayerType }) => {
   const [isMouseDown, setIsMouseDown] = useState(false);
-  const [tool, setTool] = useState<LayerType>("rectangle");
+
   const [minX, setMinX] = useState(0);
   const [minY, setMinY] = useState(0);
   const [maxX, setMaxX] = useState(0);
   const [maxY, setMaxY] = useState(0);
+
   const [cursor, setCursor] = useState("default");
 
   useEffect(() => {
@@ -71,7 +71,6 @@ export const Canvas = () => {
 
   return (
     <>
-      <Tools tool={tool} setTool={setTool} />
       <canvas
         style={{ cursor }}
         onMouseMove={(event) => {
