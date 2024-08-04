@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "rsbuild dev --open",
     "build": "rsbuild build",
-    "preview": "rsbuild preview"
+    "preview": "rsbuild preview",
+    "deploy": "yarn run build && gh-pages -d dist"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -18,6 +19,7 @@
     "@rsbuild/plugin-react": "^0.4.7",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "gh-pages": "^6.1.1",
     "typescript": "^5.5.4"
   }
 }
