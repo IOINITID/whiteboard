@@ -23,17 +23,116 @@ export class Rectangle extends Layer implements ILayer {
     this.state = "default";
   }
 
+  public frame(context: CanvasRenderingContext2D) {
+    const padding = 8;
+
+    if (context) {
+      context.beginPath();
+
+      context.strokeStyle = "purple";
+
+      context.roundRect(
+        this.position.minX - padding,
+        this.position.minY - padding,
+        this.position.maxX - this.position.minX + padding * 2,
+        this.position.maxY - this.position.minY + padding * 2,
+        0
+      );
+
+      context.closePath();
+
+      context.stroke();
+
+      const dot = {
+        width: 8,
+        height: 8,
+      };
+
+      context.beginPath();
+
+      context.strokeStyle = "purple";
+      context.fillStyle = "#ffffff";
+
+      context.roundRect(
+        this.position.minX - dot.width * 1.5,
+        this.position.minY - dot.height * 1.5,
+        dot.width,
+        dot.height,
+        0
+      );
+
+      context.closePath();
+
+      context.fill();
+      context.stroke();
+
+      context.beginPath();
+
+      context.strokeStyle = "purple";
+      context.fillStyle = "#ffffff";
+
+      context.roundRect(
+        this.position.maxX + dot.width * 0.5,
+        this.position.maxY + dot.height * 0.5,
+        dot.width,
+        dot.height,
+        0
+      );
+
+      context.closePath();
+
+      context.fill();
+      context.stroke();
+
+      context.beginPath();
+
+      context.strokeStyle = "purple";
+      context.fillStyle = "#ffffff";
+
+      context.roundRect(
+        this.position.maxX + dot.width * 0.5,
+        this.position.minY - dot.height * 1.5,
+        dot.width,
+        dot.height,
+        0
+      );
+
+      context.closePath();
+
+      context.fill();
+      context.stroke();
+
+      context.beginPath();
+
+      context.strokeStyle = "purple";
+      context.fillStyle = "#ffffff";
+
+      context.roundRect(
+        this.position.minX - dot.width * 1.5,
+        this.position.maxY + dot.height * 0.5,
+        dot.width,
+        dot.height,
+        0
+      );
+
+      context.closePath();
+
+      context.fill();
+      context.stroke();
+    }
+  }
+
   public create(context: CanvasRenderingContext2D) {
     if (context) {
       if (this.state === "active") {
-        context.strokeStyle = "red";
-      } else {
-        context.strokeStyle = "#000000";
+        this.frame(context);
       }
 
       context.lineWidth = 1;
 
       context.beginPath();
+
+      context.strokeStyle = "#000000";
 
       context.roundRect(
         this.position.minX,

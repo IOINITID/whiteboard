@@ -1,30 +1,45 @@
 import { Circle } from "../circle";
+import { LayerType } from "../layer";
 import { Line } from "../line";
 import { Rectangle } from "../rectangle";
 
 export type Layers = Rectangle[] & Circle[] & Line[];
 
 export class Scene {
-  public context: CanvasRenderingContext2D | null;
+  private canvas: HTMLCanvasElement | null;
+  private context: CanvasRenderingContext2D | null;
   public layers: Layers;
+  private isMouseDown: boolean;
+  private state: { startX: number; startY: number; endX: number; endY: number };
+  public tool: LayerType;
+  public setTool: ((tool: LayerType) => void) | null;
 
   constructor() {
+    this.canvas = null;
     this.context = null;
     this.layers = [];
+    this.isMouseDown = false;
+    this.state = { startX: 0, startY: 0, endX: 0, endY: 0 };
+    this.tool = "cursor";
+    this.setTool = null;
   }
 
   public create() {
-    const canvas = document.querySelector("canvas");
+    this.canvas = document.querySelector("canvas");
 
-    if (canvas) {
-      this.context = canvas.getContext("2d");
+    if (this.canvas) {
+      this.context = this.canvas.getContext("2d");
 
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      this.canvas.width = window.innerWidth;
+      this.canvas.height = window.innerHeight;
     }
 
     window.addEventListener("mousedown", (event) => {
       const { clientX, clientY } = event;
+
+      this.isMouseDown = true;
+
+      this.state = { ...this.state, startX: clientX, startY: clientY };
 
       const layer = this.getLayer(clientX, clientY);
 
@@ -40,6 +55,74 @@ export class Scene {
       }
 
       this.redraw();
+    });
+
+    window.addEventListener("mousemove", (event) => {
+      const { clientX, clientY, movementX, movementY } = event;
+
+      this.state = { ...this.state, endX: clientX, endY: clientY };
+
+      const { startX, startY, endX, endY } = this.state;
+
+      const layer = this.getLayer(clientX, clientY);
+
+      if (layer) {
+        if (this.canvas) {
+          this.canvas.style.cursor = "move";
+        }
+      } else {
+        if (this.canvas) {
+          this.canvas.style.cursor = "default";
+        }
+      }
+
+      if (this.isMouseDown) {
+        if (this.tool === "rectangle") {
+          this.draw(new Rectangle(startX, startY, endX, endY));
+        }
+
+        if (this.tool === "circle") {
+          this.draw(new Circle(startX, startY, endX, endY));
+        }
+
+        if (this.tool === "line") {
+          this.draw(new Line(startX, startY, endX, endY));
+        }
+
+        if (layer) {
+          if (layer.state === "active") {
+            layer.move(movementX, movementY);
+          }
+        }
+      }
+    });
+
+    window.addEventListener("mouseup", (event) => {
+      const { clientX, clientY } = event;
+
+      this.state = { ...this.state, endX: clientX, endY: clientY };
+
+      const { startX, startY, endX, endY } = this.state;
+
+      this.isMouseDown = false;
+
+      if (this.tool === "rectangle") {
+        this.add(new Rectangle(startX, startY, endX, endY));
+      }
+
+      if (this.tool === "circle") {
+        this.add(new Circle(startX, startY, endX, endY));
+      }
+
+      if (this.tool === "line") {
+        this.add(new Line(startX, startY, endX, endY));
+      }
+
+      this.state = { startX: 0, startY: 0, endX: 0, endY: 0 };
+
+      if (this.setTool) {
+        this.setTool("cursor");
+      }
     });
 
     window.addEventListener("keydown", (event) => {
